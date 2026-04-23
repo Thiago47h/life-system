@@ -171,11 +171,7 @@ tbody td{padding:12px 16px;font-size:12px;vertical-align:middle;}
   </div>
 
   <div class="content">
-    <div class="stats-row">
-      <div class="stat-card sc-t"><div class="stat-label">Total de Trocas</div><div class="stat-value" id="stTotal">0</div><div class="stat-sub">registros</div></div>
-      <div class="stat-card sc-o"><div class="stat-label">Este Mês</div><div class="stat-value" id="stMes">0</div><div class="stat-sub">trocas no mês atual</div></div>
-      <div class="stat-card sc-b"><div class="stat-label">Turmas Envolvidas</div><div class="stat-value" id="stTurmas">0</div><div class="stat-sub">turmas distintas</div></div>
-    </div>
+
 
     <div class="toolbar">
       <div class="fg flex-1">
@@ -184,19 +180,15 @@ tbody td{padding:12px 16px;font-size:12px;vertical-align:middle;}
       </div>
       <div class="fg">
         <label>Turma origem</label>
-        <select id="fOrigem" onchange="applyFilters()"><option value="">Todas</option></select>
+        <input type="text" id="fOrigem" placeholder="Ex.: 3º A" oninput="applyFilters()" style="min-width:120px">
       </div>
       <div class="fg">
         <label>Turma destino</label>
-        <select id="fDestino" onchange="applyFilters()"><option value="">Todas</option></select>
+        <input type="text" id="fDestino" placeholder="Ex.: 5º B" oninput="applyFilters()" style="min-width:120px">
       </div>
       <div class="fg">
-        <label>Data início</label>
+        <label>Data da troca</label>
         <input type="date" id="fDi" onchange="applyFilters()" style="min-width:130px">
-      </div>
-      <div class="fg">
-        <label>Data fim</label>
-        <input type="date" id="fDf" onchange="applyFilters()" style="min-width:130px">
       </div>
       <div class="ta">
         <button class="btn btn-ghost" onclick="clearFilters()">Limpar</button>
@@ -241,25 +233,11 @@ tbody td{padding:12px 16px;font-size:12px;vertical-align:middle;}
         </div>
         <div class="fg-f">
           <label>Turma Origem *</label>
-          <select id="mOrigem" onchange="updatePreview()">
-            <option value="">Selecione...</option>
-            <option>1º A</option><option>1º B</option><option>2º A</option><option>2º B</option>
-            <option>3º A</option><option>3º B</option><option>4º A</option><option>4º B</option>
-            <option>5º A</option><option>5º B</option><option>6º A</option><option>6º B</option>
-            <option>7º A</option><option>7º B</option><option>8º A</option><option>8º B</option>
-            <option>9º A</option><option>9º B</option>
-          </select>
+          <input type="text" id="mOrigem" placeholder="Ex.: 3º A" oninput="updatePreview()">
         </div>
         <div class="fg-f">
           <label>Turma Destino *</label>
-          <select id="mDestino" onchange="updatePreview()">
-            <option value="">Selecione...</option>
-            <option>1º A</option><option>1º B</option><option>2º A</option><option>2º B</option>
-            <option>3º A</option><option>3º B</option><option>4º A</option><option>4º B</option>
-            <option>5º A</option><option>5º B</option><option>6º A</option><option>6º B</option>
-            <option>7º A</option><option>7º B</option><option>8º A</option><option>8º B</option>
-            <option>9º A</option><option>9º B</option>
-          </select>
+          <input type="text" id="mDestino" placeholder="Ex.: 5º B" oninput="updatePreview()">
         </div>
 
         <!-- Preview -->
@@ -351,14 +329,12 @@ function applyFilters(){
   const q=document.getElementById('fSearch').value.toLowerCase();
   const ori=document.getElementById('fOrigem').value;
   const dest=document.getElementById('fDestino').value;
-  const di=document.getElementById('fDi').value;
-  const df=document.getElementById('fDf').value;
+  const df=document.getElementById('fDi').value;
   filtered=records.filter(r=>{
     if(q&&!r.aluno.toLowerCase().includes(q))return false;
-    if(ori&&r.turma_antiga!==ori)return false;
-    if(dest&&r.turma_nova!==dest)return false;
-    if(di&&r.data<di)return false;
-    if(df&&r.data>df)return false;
+    if(ori&&!r.turma_antiga.toLowerCase().includes(ori.toLowerCase()))return false;
+    if(dest&&!r.turma_nova.toLowerCase().includes(dest.toLowerCase()))return false;
+    if(df&&r.data!==df)return false;
     return true;
   });
   doSort();renderTable();updateStats();
@@ -413,8 +389,7 @@ function updateStats(){
 }
 
 function clearFilters(){
-  ['fSearch','fDi','fDf'].forEach(id=>document.getElementById(id).value='');
-  ['fOrigem','fDestino'].forEach(id=>document.getElementById(id).value='');
+  ['fSearch','fOrigem','fDestino','fDi'].forEach(id=>document.getElementById(id).value='');
   applyFilters();
 }
 
