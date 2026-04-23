@@ -77,8 +77,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .portal-header p{font-size:13px;color:rgba(255,255,255,0.5);margin-top:6px;}
 
 .modules-grid{
-  display:grid;grid-template-columns:repeat(2,1fr);
-  gap:16px;width:100%;max-width:560px;
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:16px;width:100%;max-width:780px;
   animation:fadeUp 0.5s ease;
 }
 .module-card {
@@ -172,18 +172,18 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
       <h3>Armários</h3>
       <p>Gestão de armários da escola</p>
     </div>
+    <div class="module-card" onclick="openModule('troca')">
+      <div class="module-icon blue">🔄</div>
+      <h3>Troca de Turmas</h3>
+      <p>Registro de trocas de turma</p>
+    </div>
     <div class="module-card coming-soon">
-      <div class="module-icon blue">💰</div>
+      <div class="module-icon navy">💰</div>
       <h3>Financeiro</h3>
       <p>Controle de entradas e categorias</p>
       <span class="cs-badge">Em breve</span>
     </div>
-    <div class="module-card coming-soon">
-      <div class="module-icon navy">📊</div>
-      <h3>Relatórios</h3>
-      <p>Visão geral de todos os módulos</p>
-      <span class="cs-badge">Em breve</span>
-    </div>
+
   </div>
 
   <div class="portal-footer">
@@ -203,6 +203,7 @@ const USUARIOS = [
 const MODULOS = {
   historico: 'historico_escolar_genesis.html',
   armarios:  'armarios.html',
+  troca:     'troca_turmas.html',
 };
 
 function doLogin() {
