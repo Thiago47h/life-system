@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Controle de Histórico Escolar — Colégio Gênesis Life</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --teal:#00B4AC;--teal-dark:#009E96;--teal-deep:#007B74;--teal-xdark:#00514D;
+  --teal-glow:rgba(0,180,172,0.15);
+  --orange:#F5A623;--orange-bg:#FFF5E0;
+  --blue-dark:#1B3F72;--blue-mid:#2D6BE4;--blue-mid-bg:#EBF1FD;
+  --green-ok:#27AE60;--green-bg:#E9F8EF;
+  --red-err:#E53935;--red-bg:#FDECEA;
+  --bg:#F0F4F8;--surface:#FFFFFF;--border:#E4EAF2;
+  --text:#1A2535;--muted:#7B8FAB;--sidebar-w:240px;
+  --font:'Plus Jakarta Sans',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex;min-height:100vh;font-size:14px;}
+
+/* SIDEBAR */
+.sidebar{width:var(--sidebar-w);min-height:100vh;background:linear-gradient(175deg,#00C9C1 0%,#007B74 55%,#00514D 100%);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:50;}
+.sb-logo{padding:26px 22px 18px;display:flex;align-items:center;gap:11px;border-bottom:1px solid rgba(255,255,255,0.12);}
+.sb-logo-icon{width:38px;height:38px;background:rgba(255,255,255,0.2);border-radius:10px;display:flex;align-items:center;justify-content:center;}
+.sb-logo-icon svg{width:20px;height:20px;}
+.sb-logo-text h1{font-size:13px;font-weight:700;color:#fff;line-height:1.2;}
+.sb-logo-text p{font-size:10px;color:rgba(255,255,255,0.5);font-weight:400;letter-spacing:0.07em;text-transform:uppercase;margin-top:2px;}
+.sb-nav{flex:1;padding:18px 0;}
+.sb-sec{font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.33);padding:0 18px 7px;margin-top:4px;}
+.sb-item{display:flex;align-items:center;gap:11px;padding:10px 18px;cursor:pointer;color:rgba(255,255,255,0.6);font-size:13px;font-weight:500;transition:all 0.18s;position:relative;}
+.sb-item:hover{color:#fff;background:rgba(255,255,255,0.07);}
+.sb-item.active{color:#fff;background:rgba(255,255,255,0.14);font-weight:600;}
+.sb-item.active::before{content:'';position:absolute;left:0;top:4px;bottom:4px;width:3px;background:#fff;border-radius:0 3px 3px 0;}
+.sb-item svg{width:15px;height:15px;flex-shrink:0;}
+.sb-divider{height:1px;background:rgba(255,255,255,0.1);margin:10px 18px;}
+.sb-toggle-row{display:flex;align-items:center;justify-content:space-between;padding:9px 18px;color:rgba(255,255,255,0.65);font-size:12px;}
+.toggle{width:34px;height:19px;background:rgba(255,255,255,0.22);border-radius:10px;cursor:pointer;position:relative;transition:background 0.2s;}
+.toggle.on{background:#fff;}
+.toggle::after{content:'';position:absolute;top:2.5px;left:2.5px;width:14px;height:14px;background:var(--teal);border-radius:50%;transition:transform 0.2s;}
+.toggle.on::after{transform:translateX(15px);}
+.sb-bottom{padding:14px 18px 26px;}
+.sb-logout{display:flex;align-items:center;gap:9px;background:rgba(255,255,255,0.11);border:1px solid rgba(255,255,255,0.16);color:#fff;font-size:12px;font-weight:500;padding:10px 15px;border-radius:9px;cursor:pointer;transition:background 0.18s;width:100%;font-family:var(--font);}
+.sb-logout:hover{background:rgba(255,255,255,0.2);}
+.sb-logout svg{width:14px;height:14px;}
+
+/* MAIN */
+.main-area{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;min-height:100vh;}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 26px;height:62px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40;}
+.topbar-left h2{font-size:16px;font-weight:700;color:var(--text);}
+.topbar-left p{font-size:11px;color:var(--muted);margin-top:1px;}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 17px;border-radius:9px;font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:var(--font);transition:all 0.16s;white-space:nowrap;}
+.btn svg{width:13px;height:13px;}
+.btn-teal{background:var(--teal);color:#fff;}
+.btn-teal:hover{background:var(--teal-dark);}
+.btn-navy{background:var(--blue-dark);color:#fff;}
+.btn-navy:hover{background:#152F5A;}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--muted);}
+.btn-ghost:hover{background:var(--bg);color:var(--text);}
+
+.content{padding:22px 26px;flex:1;}
+
+/* TABS */
+.tabs{display:flex;gap:4px;margin-bottom:22px;}
+.tab{padding:9px 18px;border-radius:9px;font-size:12px;font-weight:600;cursor:pointer;color:var(--muted);background:transparent;transition:all 0.16s;border:1px solid transparent;}
+.tab:hover{color:var(--text);background:var(--surface);border-color:var(--border);}
+.tab.active{background:var(--teal);color:#fff;border-color:var(--teal);}
+.pane{display:none;}.pane.active{display:block;}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px;}
+.stat-card{border-radius:14px;padding:18px 20px;display:flex;flex-direction:column;gap:6px;position:relative;overflow:hidden;}
+.stat-card::after{content:'';position:absolute;right:-18px;bottom:-18px;width:80px;height:80px;border-radius:50%;opacity:0.12;background:#fff;}
+.sc-t{background:var(--teal);color:#fff;}
+.sc-e{background:var(--orange);color:#fff;}
+.sc-s{background:var(--blue-dark);color:#fff;}
+.sc-b{background:var(--blue-mid);color:#fff;}
+.stat-label{font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;opacity:0.8;}
+.stat-value{font-size:32px;font-weight:800;line-height:1;}
+.stat-sub{font-size:10px;opacity:0.65;margin-top:1px;}
+
+/* TOOLBAR */
+.toolbar{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 18px;margin-bottom:14px;display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;}
+.fg{display:flex;flex-direction:column;gap:4px;}
+.fg label{font-size:9px;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;color:var(--muted);}
+.fg input,.fg select{height:36px;border:1.5px solid var(--border);border-radius:8px;padding:0 11px;font-size:12px;color:var(--text);font-family:var(--font);background:var(--surface);outline:none;transition:border-color 0.18s;min-width:0;}
+.fg input:focus,.fg select:focus{border-color:var(--teal);}
+.fg.flex-1{flex:1;min-width:180px;}
+.ta{display:flex;gap:8px;margin-left:auto;align-items:flex-end;}
+
+/* TABLE */
+.table-card{background:var(--surface);border:1px solid var(--border);border-radius:13px;overflow:hidden;}
+.tch{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.tch h3{font-size:14px;font-weight:700;}
+.cpill{background:var(--teal-glow);color:var(--teal-dark);font-size:10px;font-weight:700;padding:4px 11px;border-radius:20px;border:1px solid rgba(0,180,172,0.22);}
+table{width:100%;border-collapse:collapse;}
+thead th{background:#F7FAFB;color:var(--muted);font-size:9px;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;padding:11px 16px;text-align:left;cursor:pointer;user-select:none;border-bottom:1px solid var(--border);white-space:nowrap;transition:background 0.14s;}
+thead th:hover{background:#EEF4F8;color:var(--text);}
+thead th .si{margin-left:4px;opacity:0.25;font-size:9px;}
+thead th.sorted .si{opacity:1;color:var(--teal);}
+tbody tr{border-bottom:1px solid var(--border);transition:background 0.1s;}
+tbody tr:last-child{border-bottom:none;}
+tbody tr:nth-child(even){background:#FAFCFF;}
+tbody tr:hover{background:#F0FBF9;}
+tbody td{padding:12px 16px;font-size:12px;vertical-align:middle;}
+.td-nome{font-weight:600;}
+.td-resp{color:var(--muted);}
+.pt{display:inline-block;background:var(--blue-dark);color:#fff;font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px;}
+.be{display:inline-flex;align-items:center;gap:5px;background:var(--green-bg);color:var(--green-ok);font-size:10px;font-weight:700;padding:4px 11px;border-radius:20px;}
+.bs{display:inline-flex;align-items:center;gap:5px;background:var(--red-bg);color:var(--red-err);font-size:10px;font-weight:700;padding:4px 11px;border-radius:20px;}
+.dot{width:5px;height:5px;border-radius:50%;display:inline-block;}
+.de{background:var(--green-ok);}
+.ds{background:var(--red-err);}
+.td-date{font-weight:500;white-space:nowrap;}
+.td-mot,.td-obs{color:var(--muted);}
+.td-obs{max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.abt{width:30px;height:30px;border-radius:7px;border:1px solid var(--border);background:transparent;cursor:pointer;font-size:12px;display:inline-flex;align-items:center;justify-content:center;transition:all 0.14s;}
+.abt:hover{background:var(--bg);border-color:var(--teal);}
+.abt.del:hover{background:var(--red-bg);border-color:#FCA5A5;}
+.empty{text-align:center;padding:60px;color:var(--muted);}
+.empty svg{opacity:0.2;margin-bottom:10px;}
+.empty p{font-size:13px;}
+
+/* REL */
+.rel-filter{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 18px;margin-bottom:18px;display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap;}
+.rel-grid{display:grid;grid-template-columns:270px 1fr;gap:18px;margin-bottom:18px;}
+.rel-card{background:var(--surface);border:1px solid var(--border);border-radius:13px;overflow:hidden;}
+.rel-hdr{padding:13px 18px;background:linear-gradient(90deg,var(--teal),var(--teal-deep));display:flex;align-items:center;}
+.rel-hdr h4{font-size:11px;font-weight:700;color:#fff;letter-spacing:0.07em;text-transform:uppercase;}
+.rel-body{padding:4px 0;}
+.rrow{display:flex;justify-content:space-between;align-items:center;padding:11px 18px;border-bottom:1px solid var(--border);}
+.rrow:last-child{border-bottom:none;}
+.rl{font-size:12px;color:var(--muted);}
+.rv{font-size:19px;font-weight:800;}
+.rv.teal{color:var(--teal);}
+.rv.orange{color:var(--orange);}
+.rv.navy{color:var(--blue-dark);}
+.rv.blue{color:var(--blue-mid);}
+.tt th{background:#F7FAFB;color:var(--muted);font-size:9px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:10px 14px;border-bottom:1px solid var(--border);text-align:left;}
+.tt td{padding:10px 14px;font-size:12px;border-bottom:1px solid var(--border);}
+.tt tr:last-child td{border-bottom:none;}
+.tt tr:nth-child(even) td{background:#FAFCFF;}
+.bw{display:flex;align-items:center;gap:8px;}
+.bbg{flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden;}
+.bfill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--teal),var(--blue-mid));}
+.bpct{font-size:10px;color:var(--muted);min-width:32px;text-align:right;}
+
+/* MODAL */
+.backdrop{position:fixed;inset:0;background:rgba(10,25,50,0.55);z-index:200;display:none;align-items:center;justify-content:center;padding:22px;}
+.backdrop.open{display:flex;}
+.modal{background:var(--surface);border-radius:16px;width:100%;max-width:600px;border:1px solid var(--border);overflow:hidden;animation:up 0.2s ease;}
+@keyframes up{from{transform:translateY(16px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+.mhdr{background:linear-gradient(90deg,var(--teal-deep),var(--blue-dark));padding:18px 22px;display:flex;align-items:center;justify-content:space-between;}
+.mhdr h3{font-size:15px;font-weight:700;color:#fff;}
+.mx{width:30px;height:30px;background:rgba(255,255,255,0.12);border:none;border-radius:7px;color:#fff;cursor:pointer;font-size:17px;display:flex;align-items:center;justify-content:center;}
+.mx:hover{background:rgba(255,255,255,0.2);}
+.mbody{padding:22px;}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.fg-f{display:flex;flex-direction:column;gap:5px;}
+.fg-f label{font-size:9px;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;color:var(--muted);}
+.fg-f input,.fg-f select,.fg-f textarea{border:1.5px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;font-family:var(--font);color:var(--text);background:var(--surface);outline:none;transition:border-color 0.18s;width:100%;}
+.fg-f input:focus,.fg-f select:focus,.fg-f textarea:focus{border-color:var(--teal);}
+.fg-f textarea{resize:vertical;min-height:76px;}
+.fg-f.full{grid-column:1/-1;}
+.mfooter{padding:14px 22px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:9px;background:#F8FAFB;}
+.ferr{color:var(--red-err);font-size:11px;margin-top:8px;display:none;}
+
+/* INSTRUCOES */
+.inst-card{background:var(--surface);border:1px solid var(--border);border-radius:13px;overflow:hidden;max-width:680px;}
+.inst-hdr{padding:14px 20px;background:linear-gradient(90deg,var(--teal),var(--teal-deep));}
+.inst-hdr h3{font-size:11px;font-weight:700;color:#fff;letter-spacing:0.07em;text-transform:uppercase;}
+.inst-body{padding:22px;line-height:1.9;font-size:13px;color:var(--text);}
+.inst-body strong{color:var(--teal-dark);}
+.inst-body p{margin-bottom:12px;}
+
+@media print{
+  .sidebar,.topbar,.tabs,.toolbar,.abt,.btn-navy,.btn-teal,.ta,.backdrop,.stats-row,.rel-filter{display:none!important;}
+  .main-area{margin-left:0;}
+  .content{padding:0;}
+}
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sb-logo">
+    <div class="sb-logo-icon">
+      <svg viewBox="0 0 20 20" fill="none"><rect x="2" y="2" width="7" height="9" rx="1.5" fill="white"/><rect x="11" y="2" width="7" height="5" rx="1.5" fill="white" opacity="0.6"/><rect x="11" y="9" width="7" height="9" rx="1.5" fill="white" opacity="0.6"/><rect x="2" y="13" width="7" height="5" rx="1.5" fill="white" opacity="0.6"/></svg>
+    </div>
+    <div class="sb-logo-text">
+      <h1>Gênesis Life</h1>
+      <p>Sistema Escolar</p>
+    </div>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-sec">Menu</div>
+    <div class="sb-item active" onclick="switchTab('movimentacoes')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      Movimentações
+    </div>
+    <div class="sb-item" onclick="switchTab('relatorio')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Relatório
+    </div>
+
+
+  </nav>
+
+</aside>
+
+<div class="main-area">
+  <div class="topbar">
+    <div class="topbar-left">
+      <h2 id="topTitle">Controle de Histórico Escolar</h2>
+      <p id="topDate"></p>
+    </div>
+    <div class="topbar-right">
+      <button class="btn btn-navy" onclick="window.print()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Imprimir
+      </button>
+      <button class="btn btn-teal" onclick="openModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Novo Registro
+      </button>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="tabs">
+      <div class="tab active" id="tab-movimentacoes" onclick="switchTab('movimentacoes')">Movimentações</div>
+      <div class="tab" id="tab-relatorio" onclick="switchTab('relatorio')">Relatório Automático</div>
+    </div>
+
+    <!-- MOVIMENTACOES -->
+    <div class="pane active" id="pane-movimentacoes">
+      <div class="stats-row">
+        <div class="stat-card sc-t"><div class="stat-label">Total de Registros</div><div class="stat-value" id="stTotal">0</div><div class="stat-sub">histórico completo</div></div>
+        <div class="stat-card sc-e"><div class="stat-label">Entradas</div><div class="stat-value" id="stE">0</div><div class="stat-sub">matrículas / transferências</div></div>
+        <div class="stat-card sc-s"><div class="stat-label">Saídas</div><div class="stat-value" id="stS">0</div><div class="stat-sub">saídas registradas</div></div>
+
+      </div>
+      <div class="toolbar">
+        <div class="fg flex-1"><label>Buscar</label><input type="text" id="fSearch" placeholder="Nome do aluno ou responsável..." oninput="applyFilters()"></div>
+        <div class="fg"><label>Turma</label><select id="fTurma" onchange="applyFilters()"><option value="">Todas</option></select></div>
+        <div class="fg"><label>Tipo</label><select id="fTipo" onchange="applyFilters()"><option value="">Todos</option><option>Entrada</option><option>Saída</option></select></div>
+        <div class="fg"><label>Data início</label><input type="date" id="fDi" onchange="applyFilters()" style="min-width:136px"></div>
+        <div class="fg"><label>Data fim</label><input type="date" id="fDf" onchange="applyFilters()" style="min-width:136px"></div>
+        <div class="ta"><button class="btn btn-ghost" onclick="clearFilters()">Limpar</button></div>
+      </div>
+      <div class="table-card">
+        <div class="tch"><h3>Registros de Movimentação</h3><span class="cpill" id="cpill">0 registros</span></div>
+        <table>
+          <thead>
+            <tr>
+              <th onclick="sortBy('aluno')">Aluno <span class="si" id="si-aluno">▲</span></th>
+              <th onclick="sortBy('responsavel')">Responsável <span class="si" id="si-responsavel">▲</span></th>
+              <th onclick="sortBy('turma')">Turma <span class="si" id="si-turma">▲</span></th>
+              <th onclick="sortBy('tipo')">Tipo <span class="si" id="si-tipo">▲</span></th>
+              <th onclick="sortBy('data')">Data <span class="si" id="si-data">▲</span></th>
+              <th onclick="sortBy('motivo')">Motivo <span class="si" id="si-motivo">▲</span></th>
+              <th>Observações</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="tBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- RELATORIO -->
+    <div class="pane" id="pane-relatorio">
+      <div class="rel-filter">
+        <div class="fg"><label>Data início</label><input type="date" id="rDi" onchange="renderRel()" style="min-width:140px"></div>
+        <div class="fg"><label>Data fim</label><input type="date" id="rDf" onchange="renderRel()" style="min-width:140px"></div>
+        <div class="fg"><label>Turma</label><select id="rTurma" onchange="renderRel()"><option value="">Todas</option></select></div>
+        <button class="btn btn-ghost" onclick="clearRel()">Limpar</button>
+      </div>
+      <div class="rel-grid">
+        <div class="rel-card">
+          <div class="rel-hdr"><h4>Resumo Geral</h4></div>
+          <div class="rel-body" id="relResumo"></div>
+        </div>
+        <div class="rel-card">
+          <div class="rel-hdr"><h4>Movimentações por Turma</h4></div>
+          <table class="tt" style="width:100%">
+            <thead><tr><th>Turma</th><th>Total</th><th>Entradas</th><th>Saídas</th><th>Distribuição</th></tr></thead>
+            <tbody id="relTurmas"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="backdrop" id="backdrop" onclick="closeBackdrop(event)">
+  <div class="modal">
+    <div class="mhdr">
+      <h3 id="mTitle">Novo Registro</h3>
+      <button class="mx" onclick="closeModal()">×</button>
+    </div>
+    <div class="mbody">
+      <div class="fgrid">
+        <div class="fg-f"><label>Nome do Aluno *</label><input type="text" id="mAluno" placeholder="Nome completo"></div>
+        <div class="fg-f"><label>Nome do Responsável *</label><input type="text" id="mResp" placeholder="Nome completo"></div>
+        <div class="fg-f">
+          <label>Turma *</label>
+          <select id="mTurma">
+            <option value="">Selecione...</option>
+            <option>1º A</option><option>1º B</option><option>2º A</option><option>2º B</option>
+            <option>3º A</option><option>3º B</option><option>4º A</option><option>4º B</option>
+            <option>5º A</option><option>5º B</option><option>6º A</option><option>6º B</option>
+            <option>7º A</option><option>7º B</option><option>8º A</option><option>8º B</option>
+            <option>9º A</option><option>9º B</option>
+          </select>
+        </div>
+        <div class="fg-f">
+          <label>Tipo *</label>
+          <select id="mTipo"><option value="">Selecione...</option><option>Entrada</option><option>Saída</option></select>
+        </div>
+        <div class="fg-f"><label>Data *</label><input type="date" id="mData"></div>
+        <div class="fg-f"><label>Motivo</label><input type="text" id="mMotivo" placeholder="Ex.: Matrícula, Transferência..."></div>
+        <div class="fg-f full"><label>Observações</label><textarea id="mObs" placeholder="Informações adicionais..."></textarea></div>
+        <div class="fg-f"><label>Registrado por</label><input type="text" id="mReg" placeholder="Nome do responsável"></div>
+      </div>
+      <p class="ferr" id="ferr">Preencha todos os campos obrigatórios (*).</p>
+    </div>
+    <div class="mfooter">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-teal" onclick="saveRecord()">Salvar Registro</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SUPA_URL='https://bcotbawygyqlqrvgtzos.supabase.co';
+const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJjb3RiYXd5Z3lxbHFydmd0em9zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzMzQ4MzUsImV4cCI6MjA5MTkxMDgzNX0.qGXnTn6Ef3g0LfuU9LaMKHeAv2W8NeyiwUqIynu_FqU';
+const headers={'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY};
+
+let records=[],filtered=[],sortCol='data',sortDir=1,editId=null;
+
+function setLoading(on){
+  document.getElementById('tBody').innerHTML=on?`<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--muted)">Carregando...</td></tr>`:'';
+}
+
+async function load(){
+  document.getElementById('topDate').textContent=new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  setLoading(true);
+  try{
+    const res=await fetch(`${SUPA_URL}/rest/v1/historico_escolar?select=*&order=data.desc`,{headers});
+    records=await res.json();
+  }catch(e){records=[];}
+  populateSels();applyFilters();renderRel();
+}
+
+async function save(rec,isEdit){
+  if(isEdit){
+    await fetch(`${SUPA_URL}/rest/v1/historico_escolar?id=eq.${rec.id}`,{
+      method:'PATCH',headers:{...headers,'Prefer':'return=minimal'},
+      body:JSON.stringify({aluno:rec.aluno,responsavel:rec.responsavel,turma:rec.turma,tipo:rec.tipo,data:rec.data,motivo:rec.motivo,obs:rec.obs,registrador:rec.registrador})
+    });
+  }else{
+    await fetch(`${SUPA_URL}/rest/v1/historico_escolar`,{
+      method:'POST',headers:{...headers,'Prefer':'return=minimal'},
+      body:JSON.stringify({aluno:rec.aluno,responsavel:rec.responsavel,turma:rec.turma,tipo:rec.tipo,data:rec.data,motivo:rec.motivo,obs:rec.obs,registrador:rec.registrador})
+    });
+  }
+  await load();
+}
+function populateSels(){
+  const ts=[...new Set(records.map(r=>r.turma))].sort();
+  ['fTurma','rTurma'].forEach(id=>{
+    const el=document.getElementById(id),v=el.value;
+    el.innerHTML='<option value="">Todas</option>';
+    ts.forEach(t=>{const o=document.createElement('option');o.value=o.textContent=t;el.appendChild(o);});
+    el.value=v;
+  });
+}
+function applyFilters(){
+  const q=document.getElementById('fSearch').value.toLowerCase();
+  const tu=document.getElementById('fTurma').value;
+  const ti=document.getElementById('fTipo').value;
+  const di=document.getElementById('fDi').value;
+  const df=document.getElementById('fDf').value;
+  filtered=records.filter(r=>{
+    if(q&&!r.aluno.toLowerCase().includes(q)&&!r.responsavel.toLowerCase().includes(q))return false;
+    if(tu&&r.turma!==tu)return false;
+    if(ti&&r.tipo!==ti)return false;
+    if(di&&r.data<di)return false;
+    if(df&&r.data>df)return false;
+    return true;
+  });
+  doSort();renderTable();updateStats();
+}
+function sortBy(col){
+  if(sortCol===col)sortDir*=-1;else{sortCol=col;sortDir=1;}
+  document.querySelectorAll('.si').forEach(e=>{e.style.opacity='0.25';e.style.color='';});
+  const ic=document.getElementById('si-'+col);
+  if(ic){ic.style.opacity='1';ic.style.color='var(--teal)';ic.textContent=sortDir===1?'▲':'▼';}
+  doSort();renderTable();
+}
+function doSort(){filtered.sort((a,b)=>{let av=a[sortCol]||'',bv=b[sortCol]||'';return av<bv?-sortDir:av>bv?sortDir:0;});}
+function fmt(d){if(!d)return'—';const[y,m,day]=d.split('-');return`${day}/${m}/${y}`;}
+function renderTable(){
+  const tb=document.getElementById('tBody');
+  document.getElementById('cpill').textContent=filtered.length+(filtered.length===1?' registro':' registros');
+  if(!filtered.length){tb.innerHTML=`<tr><td colspan="8"><div class="empty"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><p>Nenhum registro encontrado</p></div></td></tr>`;return;}
+  tb.innerHTML=filtered.map(r=>`
+    <tr>
+      <td class="td-nome">${r.aluno}</td>
+      <td class="td-resp">${r.responsavel}</td>
+      <td><span class="pt">${r.turma}</span></td>
+      <td><span class="${r.tipo==='Entrada'?'be':'bs'}"><span class="dot ${r.tipo==='Entrada'?'de':'ds'}"></span>${r.tipo}</span></td>
+      <td class="td-date">${fmt(r.data)}</td>
+      <td class="td-mot">${r.motivo||'—'}</td>
+      <td class="td-obs" title="${r.obs}">${r.obs||'—'}</td>
+      <td><button class="abt" onclick="editRec(${r.id})" title="Editar">✏️</button> <button class="abt del" onclick="delRec(${r.id})" title="Excluir">🗑️</button></td>
+    </tr>`).join('');
+}
+function updateStats(){
+  const e=records.filter(r=>r.tipo==='Entrada').length,s=records.filter(r=>r.tipo==='Saída').length;
+  document.getElementById('stTotal').textContent=records.length;
+  document.getElementById('stE').textContent=e;
+  document.getElementById('stS').textContent=s;
+}
+function clearFilters(){
+  ['fSearch','fDi','fDf'].forEach(id=>document.getElementById(id).value='');
+  ['fTurma','fTipo'].forEach(id=>document.getElementById(id).value='');
+  applyFilters();
+}
+function openModal(){
+  editId=null;document.getElementById('mTitle').textContent='Novo Registro';
+  ['mAluno','mResp','mMotivo','mObs','mReg'].forEach(id=>document.getElementById(id).value='');
+  ['mTurma','mTipo'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('mData').value=new Date().toISOString().split('T')[0];
+  document.getElementById('ferr').style.display='none';
+  document.getElementById('backdrop').classList.add('open');
+}
+function editRec(id){
+  const r=records.find(x=>x.id===id);if(!r)return;editId=id;
+  document.getElementById('mTitle').textContent='Editar Registro';
+  document.getElementById('mAluno').value=r.aluno;document.getElementById('mResp').value=r.responsavel;
+  document.getElementById('mTurma').value=r.turma;document.getElementById('mTipo').value=r.tipo;
+  document.getElementById('mData').value=r.data;document.getElementById('mMotivo').value=r.motivo||'';
+  document.getElementById('mObs').value=r.obs||'';document.getElementById('mReg').value=r.registrador||'';
+  document.getElementById('ferr').style.display='none';
+  document.getElementById('backdrop').classList.add('open');
+}
+async function saveRecord(){
+  const a=document.getElementById('mAluno').value.trim(),rp=document.getElementById('mResp').value.trim(),
+    tu=document.getElementById('mTurma').value,ti=document.getElementById('mTipo').value,
+    da=document.getElementById('mData').value;
+  if(!a||!rp||!tu||!ti||!da){document.getElementById('ferr').style.display='block';return;}
+  const rec={id:editId||null,aluno:a,responsavel:rp,turma:tu,tipo:ti,data:da,
+    motivo:document.getElementById('mMotivo').value.trim(),
+    obs:document.getElementById('mObs').value.trim(),
+    registrador:document.getElementById('mReg').value.trim()};
+  closeModal();
+  await save(rec,!!editId);
+}
+async function delRec(id){
+  if(!confirm('Excluir este registro?'))return;
+  await fetch(`${SUPA_URL}/rest/v1/historico_escolar?id=eq.${id}`,{method:'DELETE',headers});
+  await load();
+}
+function closeModal(){document.getElementById('backdrop').classList.remove('open');}
+function closeBackdrop(e){if(e.target===document.getElementById('backdrop'))closeModal();}
+function switchTab(tab){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.pane').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(s=>s.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  document.getElementById('pane-'+tab).classList.add('active');
+  const map={movimentacoes:0,relatorio:1};
+  const items=document.querySelectorAll('.sb-item');
+  if(items[map[tab]])items[map[tab]].classList.add('active');
+  const titles={movimentacoes:'Controle de Histórico Escolar',relatorio:'Relatório Automático'};
+  document.getElementById('topTitle').textContent=titles[tab];
+  if(tab==='relatorio')renderRel();
+}
+function renderRel(){
+  const di=document.getElementById('rDi').value,df=document.getElementById('rDf').value,tf=document.getElementById('rTurma').value;
+  const sub=records.filter(r=>{
+    if(di&&r.data<di)return false;if(df&&r.data>df)return false;if(tf&&r.turma!==tf)return false;return true;
+  });
+  const e=sub.filter(r=>r.tipo==='Entrada').length,s=sub.filter(r=>r.tipo==='Saída').length;
+  document.getElementById('relResumo').innerHTML=`
+    <div class="rrow"><span class="rl">Total de Registros</span><span class="rv teal">${sub.length}</span></div>
+    <div class="rrow"><span class="rl">Entradas</span><span class="rv orange">${e}</span></div>
+    <div class="rrow"><span class="rl">Saídas</span><span class="rv navy">${s}</span></div>
+    `;
+  const ts=tf?[tf]:[...new Set(records.map(r=>r.turma))].sort();
+  document.getElementById('relTurmas').innerHTML=ts.map(t=>{
+    const rows=sub.filter(r=>r.turma===t),tot=rows.length,ent=rows.filter(r=>r.tipo==='Entrada').length,sai=rows.filter(r=>r.tipo==='Saída').length;
+    const pct=sub.length?Math.round(tot/sub.length*100):0;
+    return`<tr><td><span class="pt">${t}</span></td><td style="font-weight:700">${tot}</td><td style="color:var(--green-ok);font-weight:600">${ent}</td><td style="color:var(--red-err);font-weight:600">${sai}</td><td><div class="bw"><div class="bbg"><div class="bfill" style="width:${pct}%"></div></div><span class="bpct">${pct}%</span></div></td></tr>`;
+  }).join('');
+}
+function clearRel(){['rDi','rDf'].forEach(id=>document.getElementById(id).value='');document.getElementById('rTurma').value='';renderRel();}
+load();
+</script>
+</body>
+</html>
