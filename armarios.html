@@ -116,6 +116,26 @@ header{background:linear-gradient(135deg,#00C9C1,#007B74 50%,#1B3F72);padding:0 
   .stats-bar,.toolbar,.grid-container{padding-left:16px;padding-right:16px;}
   .grid-container{grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:12px;}
 }
+
+body.dark{
+  --bg:#0F1923;--surface:#162030;--border:#1E2E42;
+  --text:#E2EAF4;--muted:#5A7A9A;
+  --teal-glow:rgba(0,180,172,0.10);
+  --red-bg:rgba(229,57,53,0.12);
+}
+body.dark .stat-card{background:var(--surface);border-color:var(--border);}
+body.dark .search-box input{background:var(--surface);border-color:var(--border);color:var(--text);}
+body.dark .filter-btn{background:var(--surface);border-color:var(--border);color:var(--muted);}
+body.dark .locker-card{background:var(--surface);border-color:var(--border);}
+body.dark .locker-card.empty .locker-top{background:#111D2A;}
+body.dark .locker-number{background:rgba(22,32,48,0.9);border-color:var(--border);color:var(--muted);}
+body.dark .modal{background:var(--surface);}
+body.dark .form-group input{background:#111D2A;border-color:var(--border);color:var(--text);}
+body.dark .toast{background:#E2EAF4;color:#0F1923;}
+body.dark .locker-name{color:var(--text);}
+body.dark .locker-empty-label{color:var(--muted);}
+.dm-btn{width:36px;height:36px;border-radius:9px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.1);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all 0.18s;color:#fff;}
+.dm-btn:hover{background:rgba(255,255,255,0.22);}
 </style>
 </head>
 <body>
@@ -138,7 +158,7 @@ header{background:linear-gradient(135deg,#00C9C1,#007B74 50%,#1B3F72);padding:0 
       <div class="sync-dot" id="sync-dot"></div>
       <span id="sync-label">Conectando...</span>
     </div>
-    <a href="index.html" class="btn-portal">← Voltar ao Portal</a>
+    <button class="dm-btn" id="dmBtn" onclick="toggleDark()" title="Modo escuro">🌙</button> <a href="index.html" class="btn-portal">← Voltar ao Portal</a>
   </div>
 </header>
 
@@ -346,6 +366,18 @@ setInterval(async()=>{
 },30000);
 
 initDB();
+
+function toggleDark(){
+  const isDark=document.body.classList.toggle('dark');
+  document.getElementById('dmBtn').textContent=isDark?'☀️':'🌙';
+  localStorage.setItem('genesis_dark',isDark?'1':'0');
+}
+(function(){
+  if(localStorage.getItem('genesis_dark')==='1'){
+    document.body.classList.add('dark');
+    const b=document.getElementById('dmBtn');if(b)b.textContent='☀️';
+  }
+})();
 </script>
 </body>
 </html>
