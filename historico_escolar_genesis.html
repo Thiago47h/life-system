@@ -250,7 +250,7 @@ tbody td{padding:12px 16px;font-size:12px;vertical-align:middle;}
       </div>
       <div class="toolbar">
         <div class="fg flex-1"><label>Buscar</label><input type="text" id="fSearch" placeholder="Nome do aluno ou responsável..." oninput="applyFilters()"></div>
-        <div class="fg"><label>Turma</label><select id="fTurma" onchange="applyFilters()"><option value="">Todas</option></select></div>
+        <div class="fg"><label>Turma</label><input type="text" id="fTurma" placeholder="Ex.: 9º A..." oninput="applyFilters()" style="min-width:110px"></div>
         <div class="fg"><label>Tipo</label><select id="fTipo" onchange="applyFilters()"><option value="">Todos</option><option>Entrada</option><option>Saída</option></select></div>
         <div class="fg"><label>Data início</label><input type="date" id="fDi" onchange="applyFilters()" style="min-width:136px"></div>
         <div class="fg"><label>Data fim</label><input type="date" id="fDf" onchange="applyFilters()" style="min-width:136px"></div>
@@ -281,7 +281,7 @@ tbody td{padding:12px 16px;font-size:12px;vertical-align:middle;}
       <div class="rel-filter">
         <div class="fg"><label>Data início</label><input type="date" id="rDi" onchange="renderRel()" style="min-width:140px"></div>
         <div class="fg"><label>Data fim</label><input type="date" id="rDf" onchange="renderRel()" style="min-width:140px"></div>
-        <div class="fg"><label>Turma</label><select id="rTurma" onchange="renderRel()"><option value="">Todas</option></select></div>
+        <div class="fg"><label>Turma</label><input type="text" id="rTurma" placeholder="Ex.: 9º A..." oninput="renderRel()" style="min-width:110px"></div>
         <button class="btn btn-ghost" onclick="clearRel()">Limpar</button>
       </div>
       <div class="rel-grid">
@@ -316,14 +316,7 @@ tbody td{padding:12px 16px;font-size:12px;vertical-align:middle;}
         <div class="fg-f"><label>Nome do Responsável *</label><input type="text" id="mResp" placeholder="Nome completo"></div>
         <div class="fg-f">
           <label>Turma *</label>
-          <select id="mTurma">
-            <option value="">Selecione...</option>
-            <option>1º A</option><option>1º B</option><option>2º A</option><option>2º B</option>
-            <option>3º A</option><option>3º B</option><option>4º A</option><option>4º B</option>
-            <option>5º A</option><option>5º B</option><option>6º A</option><option>6º B</option>
-            <option>7º A</option><option>7º B</option><option>8º A</option><option>8º B</option>
-            <option>9º A</option><option>9º B</option>
-          </select>
+          <input type="text" id="mTurma" placeholder="Ex.: 9º A, 1º B...">
         </div>
         <div class="fg-f">
           <label>Tipo *</label>
@@ -378,15 +371,7 @@ async function save(rec,isEdit){
   }
   await load();
 }
-function populateSels(){
-  const ts=[...new Set(records.map(r=>r.turma))].sort();
-  ['fTurma','rTurma'].forEach(id=>{
-    const el=document.getElementById(id),v=el.value;
-    el.innerHTML='<option value="">Todas</option>';
-    ts.forEach(t=>{const o=document.createElement('option');o.value=o.textContent=t;el.appendChild(o);});
-    el.value=v;
-  });
-}
+function populateSels(){}
 function applyFilters(){
   const q=document.getElementById('fSearch').value.toLowerCase();
   const tu=document.getElementById('fTurma').value;
@@ -395,7 +380,7 @@ function applyFilters(){
   const df=document.getElementById('fDf').value;
   filtered=records.filter(r=>{
     if(q&&!r.aluno.toLowerCase().includes(q)&&!r.responsavel.toLowerCase().includes(q))return false;
-    if(tu&&r.turma!==tu)return false;
+    if(tu&&!r.turma.toLowerCase().includes(tu.toLowerCase()))return false;
     if(ti&&r.tipo!==ti)return false;
     if(di&&r.data<di)return false;
     if(df&&r.data>df)return false;
@@ -492,7 +477,7 @@ function switchTab(tab){
 function renderRel(){
   const di=document.getElementById('rDi').value,df=document.getElementById('rDf').value,tf=document.getElementById('rTurma').value;
   const sub=records.filter(r=>{
-    if(di&&r.data<di)return false;if(df&&r.data>df)return false;if(tf&&r.turma!==tf)return false;return true;
+    if(di&&r.data<di)return false;if(df&&r.data>df)return false;if(tf&&!r.turma.toLowerCase().includes(tf.toLowerCase()))return false;return true;
   });
   const e=sub.filter(r=>r.tipo==='Entrada').length,s=sub.filter(r=>r.tipo==='Saída').length;
   document.getElementById('relResumo').innerHTML=`
