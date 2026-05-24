@@ -130,6 +130,32 @@ tbody td{padding:12px 16px;font-size:12px;vertical-align:middle;}
 .preview-label{font-size:9px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
 .preview-val{font-size:15px;font-weight:800;color:var(--text);}
 .preview-arrow{font-size:22px;color:var(--teal);}
+
+body.dark{
+  --bg:#0F1923;--surface:#162030;--border:#1E2E42;
+  --text:#E2EAF4;--muted:#5A7A9A;
+  --teal-glow:rgba(0,180,172,0.10);
+  --red-bg:rgba(229,57,53,0.12);
+}
+body.dark .topbar{background:var(--surface);border-color:var(--border);}
+body.dark .toolbar{background:var(--surface);border-color:var(--border);}
+body.dark .table-card{background:var(--surface);border-color:var(--border);}
+body.dark thead th{background:#111D2A;color:var(--muted);}
+body.dark thead th:hover{background:#162842;}
+body.dark tbody tr:nth-child(even){background:#111D2A;}
+body.dark tbody tr:hover{background:#0E2233;}
+body.dark .tch{border-color:var(--border);}
+body.dark .modal{background:var(--surface);border-color:var(--border);}
+body.dark .mfooter{background:#111D2A;border-color:var(--border);}
+body.dark .fg-f input,body.dark .fg-f select,body.dark .fg-f textarea{background:#111D2A;border-color:var(--border);color:var(--text);}
+body.dark .fg input,body.dark .fg select{background:#111D2A;border-color:var(--border);color:var(--text);}
+body.dark .btn-ghost{border-color:var(--border);color:var(--muted);}
+body.dark .btn-ghost:hover{background:var(--bg);color:var(--text);}
+body.dark .abt{border-color:var(--border);}
+body.dark .abt:hover{background:var(--bg);}
+body.dark .preview-box{background:var(--bg);border-color:var(--border);}
+.dm-btn{width:38px;height:38px;border-radius:10px;border:1px solid var(--border);background:transparent;cursor:pointer;font-size:17px;display:flex;align-items:center;justify-content:center;transition:all 0.18s;color:var(--muted);}
+.dm-btn:hover{background:var(--bg);border-color:var(--teal);}
 </style>
 </head>
 <body>
@@ -162,7 +188,7 @@ tbody td{padding:12px 16px;font-size:12px;vertical-align:middle;}
       <h2>Troca de Turmas</h2>
       <p id="topDate"></p>
     </div>
-    <div class="topbar-right">
+    <div class="topbar-right"><button class="dm-btn" id="dmBtn" onclick="toggleDark()" title="Modo escuro">🌙</button>
       <button class="btn btn-teal" onclick="openModal()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         Registrar Troca
@@ -453,6 +479,20 @@ function closeModal(){document.getElementById('backdrop').classList.remove('open
 function closeBackdrop(e){if(e.target===document.getElementById('backdrop'))closeModal();}
 
 load();
+
+function toggleDark(){
+  const isDark=document.body.classList.toggle('dark');
+  document.getElementById('dmBtn').textContent=isDark?'☀️':'🌙';
+  localStorage.setItem('genesis_dark',isDark?'1':'0');
+}
+(function(){
+  if(localStorage.getItem('genesis_dark')==='1'){
+    document.body.classList.add('dark');
+    document.addEventListener('DOMContentLoaded',function(){
+      const b=document.getElementById('dmBtn');if(b)b.textContent='☀️';
+    });
+  }
+})();
 </script>
 </body>
 </html>
